@@ -1,0 +1,16 @@
+{
+  "name": "Dashboard",
+  "version": "0.1.0",
+  "root": {
+    "id": "root",
+    "type": "Stack",
+    "props": {
+      "direction": "col",
+      "gap": 16,
+      "padding": 24,
+      "minHeight": "100vh",
+      "bg": "var(--bg)"
+    },
+    "children": []
+  }
+}

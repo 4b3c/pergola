@@ -421,3 +421,79 @@ def delete_field(db_name, table_name, field_name):
     table["fields"] = [f for f in before if f["name"] != field_name]
     _save_entry(reg, entry)
     return jsonify({"success": True})
+
+
+# ── Layout API ────────────────────────────────────────────────────────────────
+
+def _layouts_dir():
+    return os.path.join(app_path, "layouts")
+
+
+@main.route("/api/layouts")
+def list_layouts():
+    if not app_path:
+        return jsonify([])
+    d = _layouts_dir()
+    if not os.path.isdir(d):
+        return jsonify([])
+    result = []
+    for f in sorted(os.listdir(d)):
+        if f.endswith(".json"):
+            result.append({"name": f[:-5], "file": f})
+    return jsonify(result)
+
+
+@main.route("/api/layouts", methods=["POST"])
+def create_layout():
+    if not app_path:
+        return jsonify({"error": "no app open"}), 400
+    data = request.get_json()
+    name = data.get("name", "").strip()
+    if not name:
+        return jsonify({"error": "name required"}), 400
+
+    filename = re.sub(r"[^a-z0-9_]", "_", name.lower()) + ".json"
+    d = _layouts_dir()
+    os.makedirs(d, exist_ok=True)
+    filepath = os.path.join(d, filename)
+
+    if os.path.exists(filepath):
+        return jsonify({"error": "layout already exists"}), 409
+
+    layout = {
+        "name": name,
+        "version": "0.1.0",
+        "root": {
+            "id": "root",
+            "type": "Stack",
+            "props": {"direction": "col", "gap": 16, "padding": 24, "minHeight": "100vh", "bg": "var(--bg)"},
+            "children": [],
+        },
+    }
+    with open(filepath, "w") as f:
+        json.dump(layout, f, indent=2)
+
+    return jsonify({"success": True, "name": name, "file": filename})
+
+
+@main.route("/api/layouts/<name>")
+def get_layout(name):
+    if not app_path:
+        return jsonify({"error": "no app open"}), 400
+    filepath = os.path.join(_layouts_dir(), name + ".json")
+    try:
+        with open(filepath) as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({"error": "not found"}), 404
+
+
+@main.route("/api/layouts/<name>", methods=["PUT"])
+def save_layout(name):
+    if not app_path:
+        return jsonify({"error": "no app open"}), 400
+    data = request.get_json()
+    filepath = os.path.join(_layouts_dir(), name + ".json")
+    with open(filepath, "w") as f:
+        json.dump(data, f, indent=2)
+    return jsonify({"success": True})
