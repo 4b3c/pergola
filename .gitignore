@@ -216,3 +216,25 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node
+node_modules/
+**/node_modules/
+
+# Vite build output (built fresh by Docker or pnpm build)
+develop/app/static/assets/
+serve/app/static/assets/
+
+# pnpm local config
+.npmrc
+
+# Pergola local state (lives in ~/.pergola/ not the repo)
+projects.json
+
+# SQLite test databases
+*.sqlite
+
+# TypeScript compiled output (noEmit is set, but belt-and-suspenders)
+develop/frontend/src/**/*.js
+serve/frontend/src/**/*.js
+packages/engine/src/**/*.js

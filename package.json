@@ -1,0 +1,11 @@
+{
+  "name": "pergola",
+  "private": true,
+  "scripts": {
+    "dev:develop": "pnpm --filter pergola-develop dev",
+    "dev:serve":   "pnpm --filter pergola-serve dev",
+    "build:develop": "pnpm --filter pergola-develop build",
+    "build:serve":   "pnpm --filter pergola-serve build"
+  },
+  "engines": { "node": ">=18" }
+}

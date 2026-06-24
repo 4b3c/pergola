@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pergola</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+  <!-- ── Top bar ── -->
+  <header class="topbar">
+    <span class="topbar-logo">pergola</span>
+    {% if app_path %}
+    <div class="topbar-sep"></div>
+    <span class="topbar-path" title="{{ app_path }}">{{ app_path }}</span>
+    <button class="btn btn-ghost" onclick="openPicker()">change folder</button>
+    {% endif %}
+  </header>
+
+  <!-- ── Landing (no app_path) ── -->
+  {% if not app_path %}
+  <div class="landing">
+    <div class="landing-inner">
+      <span class="landing-eyebrow">no project open</span>
+      <h1 class="landing-title">Select a folder to start building</h1>
+      <p class="landing-sub">Choose the directory where your app lives. Pergola will use it as the working root.</p>
+      <button class="btn btn-primary" onclick="openPicker()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+        Open folder
+      </button>
+    </div>
+  </div>
+  {% else %}
+  <div class="workspace">
+    <p class="workspace-hint">workspace: <code>{{ app_path }}</code></p>
+  </div>
+  {% endif %}
+
+  <!-- ── File picker modal ── -->
+  <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Select app folder</span>
+        <button class="modal-close" onclick="closePicker()">✕</button>
+      </div>
+
+      <div class="breadcrumbs" id="breadcrumbs"></div>
+
+      <div class="dir-list" id="dirList">
+        <div class="dir-loading">loading…</div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="footer-path" id="footerPath"></span>
+        <button class="btn btn-primary" id="selectBtn" onclick="selectCurrent()" disabled>
+          Select this folder
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentPath = null;
+
+    function openPicker() {
+      document.getElementById("modal").classList.add("open");
+      browse("~");
+    }
+
+    function closePicker() {
+      document.getElementById("modal").classList.remove("open");
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById("modal")) closePicker();
+    }
+
+    async function browse(path) {
+      document.getElementById("dirList").innerHTML = '<div class="dir-loading">loading…</div>';
+      const res = await fetch("/api/browse?path=" + encodeURIComponent(path));
+      if (!res.ok) {
+        const err = await res.json();
+        document.getElementById("dirList").innerHTML = `<div class="dir-error">${err.error}</div>`;
+        return;
+      }
+      const data = await res.json();
+      currentPath = data.path;
+
+      // breadcrumbs
+      const bc = document.getElementById("breadcrumbs");
+      bc.innerHTML = data.breadcrumbs.map((c, i) =>
+        `<button class="crumb" onclick="browse('${escapePath(c.path)}')">${escapeHtml(c.name)}</button>` +
+        (i < data.breadcrumbs.length - 1 ? '<span class="crumb-sep">/</span>' : "")
+      ).join("");
+
+      // directory list
+      const list = document.getElementById("dirList");
+      if (data.dirs.length === 0) {
+        list.innerHTML = '<div class="dir-empty">No subfolders</div>';
+      } else {
+        list.innerHTML = data.dirs.map(d =>
+          `<button class="dir-item" onclick="browse('${escapePath(d.path)}')">
+            <svg class="dir-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+            <span class="dir-name">${escapeHtml(d.name)}</span>
+            <svg class="dir-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>`
+        ).join("");
+      }
+
+      // footer
+      document.getElementById("footerPath").textContent = data.path;
+      document.getElementById("selectBtn").disabled = false;
+    }
+
+    async function selectCurrent() {
+      if (!currentPath) return;
+      const res = await fetch("/api/set-path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: currentPath })
+      });
+      if (res.ok) {
+        window.location.reload();
+      }
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    function escapePath(s) {
+      return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") closePicker();
+    });
+  </script>
+</body>
+</html>

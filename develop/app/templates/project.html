@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ meta.name }} — Pergola</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="project-body">
+
+  <div class="project-layout">
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <a href="/" class="sidebar-logo">pergola</a>
+        <span class="sidebar-app-name">{{ meta.name }}</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="showSection('databases', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+          Databases
+        </button>
+        <button class="nav-item" onclick="showSection('layouts', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Layouts
+        </button>
+        <button class="nav-item" onclick="showSection('scripts', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Scripts
+        </button>
+        <button class="nav-item" onclick="showSection('about', this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          About
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ── Main content ── -->
+    <main class="project-main">
+
+      <!-- ════════════════════════════════════════════════════════════
+           DATABASES SECTION
+      ════════════════════════════════════════════════════════════ -->
+      <section class="project-section active" id="section-databases">
+
+        <!-- List view -->
+        <div id="db-list-view">
+          <div class="section-header">
+            <h2 class="section-title">Databases</h2>
+            <button class="btn btn-ghost btn-sm" onclick="showDbCreateForm()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Create database
+            </button>
+          </div>
+
+          <div class="inline-form" id="db-create-form">
+            <input class="inline-input" id="new-db-name" placeholder="database name"
+              onkeydown="if(event.key==='Enter') submitCreateDb(); if(event.key==='Escape') hideDbCreateForm();" />
+            <button class="btn btn-primary btn-sm" onclick="submitCreateDb()">Create</button>
+            <button class="btn btn-ghost btn-sm" onclick="hideDbCreateForm()">Cancel</button>
+            <span class="inline-error" id="db-create-error"></span>
+          </div>
+
+          <div id="db-items"></div>
+        </div>
+
+        <!-- Database detail view -->
+        <div id="db-detail-view" style="display:none">
+          <div class="section-header">
+            <div class="section-header-left">
+              <button class="back-btn" onclick="showDbList()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Databases
+              </button>
+              <h2 class="section-title" id="db-detail-title"></h2>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="showTableCreateForm()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Create table
+            </button>
+          </div>
+
+          <div class="inline-form" id="table-create-form">
+            <input class="inline-input" id="new-table-name" placeholder="table name"
+              onkeydown="if(event.key==='Enter') submitCreateTable(); if(event.key==='Escape') hideTableCreateForm();" />
+            <button class="btn btn-primary btn-sm" onclick="submitCreateTable()">Create</button>
+            <button class="btn btn-ghost btn-sm" onclick="hideTableCreateForm()">Cancel</button>
+            <span class="inline-error" id="table-create-error"></span>
+          </div>
+
+          <div id="tables-container"></div>
+        </div>
+
+      </section>
+
+      <!-- ════════════════════════════════════════════════════════════
+           LAYOUTS SECTION
+      ════════════════════════════════════════════════════════════ -->
+      <section class="project-section" id="section-layouts">
+        <div class="section-header">
+          <h2 class="section-title">Layouts</h2>
+        </div>
+        <div class="empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <p>No layouts yet</p>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════════════
+           SCRIPTS SECTION
+      ════════════════════════════════════════════════════════════ -->
+      <section class="project-section" id="section-scripts">
+        <div class="section-header">
+          <h2 class="section-title">Scripts</h2>
+        </div>
+        <div class="empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <p>No scripts yet</p>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════════════════
+           ABOUT SECTION
+      ════════════════════════════════════════════════════════════ -->
+      <section class="project-section" id="section-about">
+        <div class="section-header">
+          <h2 class="section-title">About</h2>
+        </div>
+        <div class="about-grid">
+          <div class="about-row">
+            <span class="about-key">Name</span>
+            <span class="about-val">{{ meta.name }}</span>
+          </div>
+          <div class="about-row">
+            <span class="about-key">Version</span>
+            <span class="about-val">{{ meta.version }}</span>
+          </div>
+          <div class="about-row">
+            <span class="about-key">Description</span>
+            <span class="about-val">{{ meta.description or '—' }}</span>
+          </div>
+          <div class="about-row">
+            <span class="about-key">Path</span>
+            <span class="about-val about-mono">{{ app_path }}</span>
+          </div>
+        </div>
+
+        <div class="about-actions">
+          <button class="btn btn-close-project" onclick="closeProject()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Close project
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+  // ── Section navigation ─────────────────────────────────────────────────────
+  function showSection(name, btn) {
+    document.querySelectorAll('.project-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    btn.classList.add('active');
+    if (name === 'databases') loadDatabases();
+  }
+
+  // ── Close project ──────────────────────────────────────────────────────────
+  async function closeProject() {
+    await fetch('/api/close-app', { method: 'POST' });
+    window.location.href = '/';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DATABASE UI
+  // ══════════════════════════════════════════════════════════════════════════
+  let activeDbName = null;
+
+  // ── Database list ──────────────────────────────────────────────────────────
+  async function loadDatabases() {
+    const res = await fetch('/api/databases');
+    const dbs = await res.json();
+    renderDbList(dbs);
+  }
+
+  function renderDbList(dbs) {
+    const el = document.getElementById('db-items');
+    if (dbs.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+          <p>No databases yet</p>
+        </div>`;
+      return;
+    }
+    el.innerHTML = dbs.map(db => `
+      <div class="db-item ${db.status === 'missing' ? 'db-item--warn' : ''}"
+           title="double-click to open"
+           ondblclick="openDatabase('${esc(db.name)}')">
+        <svg class="db-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+        <div class="db-item-info">
+          <span class="db-item-name">${esc(db.name)}</span>
+          <span class="db-item-meta">${db.table_count} ${db.table_count === 1 ? 'table' : 'tables'}</span>
+        </div>
+        ${db.status === 'missing' ? '<span class="status-badge status-badge--warn">file missing</span>' : ''}
+      </div>`).join('');
+  }
+
+  // ── Create database ────────────────────────────────────────────────────────
+  function showDbCreateForm() {
+    const f = document.getElementById('db-create-form');
+    f.classList.add('visible');
+    setTimeout(() => document.getElementById('new-db-name').focus(), 50);
+  }
+
+  function hideDbCreateForm() {
+    document.getElementById('db-create-form').classList.remove('visible');
+    document.getElementById('new-db-name').value = '';
+    document.getElementById('db-create-error').textContent = '';
+  }
+
+  async function submitCreateDb() {
+    const name = document.getElementById('new-db-name').value.trim();
+    if (!name) return;
+    const res  = await fetch('/api/databases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('db-create-error').textContent = data.error;
+      return;
+    }
+    hideDbCreateForm();
+    loadDatabases();
+  }
+
+  // ── Open database (detail view) ────────────────────────────────────────────
+  async function openDatabase(name) {
+    const res = await fetch('/api/databases/' + encodeURIComponent(name));
+    if (!res.ok) return;
+    const db  = await res.json();
+    activeDbName = name;
+
+    document.getElementById('db-list-view').style.display   = 'none';
+    document.getElementById('db-detail-view').style.display = 'block';
+    document.getElementById('db-detail-title').textContent  = name;
+
+    hideTableCreateForm();
+    renderDbDetail(db);
+  }
+
+  function showDbList() {
+    activeDbName = null;
+    document.getElementById('db-detail-view').style.display = 'none';
+    document.getElementById('db-list-view').style.display   = 'block';
+    loadDatabases();
+  }
+
+  // ── Render database detail ─────────────────────────────────────────────────
+  function renderDbDetail(db) {
+    const tables    = db.tables || {};
+    const names     = Object.keys(tables);
+    const container = document.getElementById('tables-container');
+
+    if (names.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <p>No tables yet</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = names.map(n => renderTable(n, tables[n])).join('');
+  }
+
+  function renderTable(name, table) {
+    const fields = table.fields || [];
+    return `
+      <div class="table-card" id="tcard-${name}">
+        <div class="table-card-header">
+          <span class="table-name">${esc(name)}</span>
+          <button class="btn btn-ghost btn-xs" onclick="toggleAddFieldForm('${esc(name)}')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add field
+          </button>
+        </div>
+        <div class="fields-list">
+          ${fields.map(f => renderField(name, f)).join('')}
+        </div>
+        <div class="add-field-form" id="aff-${name}">
+          <input class="inline-input" id="fn-${name}" placeholder="field name"
+            onkeydown="if(event.key==='Enter') submitAddField('${esc(name)}'); if(event.key==='Escape') closeAddFieldForm('${esc(name)}');" />
+          <select class="type-select" id="ft-${name}">
+            <option value="text">text</option>
+            <option value="integer">integer</option>
+            <option value="float">float</option>
+            <option value="boolean">boolean</option>
+            <option value="timestamp">timestamp</option>
+            <option value="json">json</option>
+          </select>
+          <button class="btn btn-primary btn-xs" onclick="submitAddField('${esc(name)}')">Add</button>
+          <button class="btn btn-ghost btn-xs" onclick="closeAddFieldForm('${esc(name)}')">Cancel</button>
+          <span class="inline-error" id="aff-err-${name}"></span>
+        </div>
+      </div>`;
+  }
+
+  function renderField(tableName, field) {
+    const isSystem = !!field.system;
+    const badges   = [];
+    if (field.primary_key)    badges.push('PK');
+    if (field.auto_increment) badges.push('auto');
+    return `
+      <div class="field-row ${isSystem ? 'field-row--system' : ''}">
+        <span class="field-name">${esc(field.name)}</span>
+        <span class="field-type type-${field.type}">${esc(field.type)}</span>
+        <span class="field-badges">${badges.join(' · ')}</span>
+        ${isSystem
+          ? '<span class="field-system">system</span>'
+          : `<button class="field-delete" title="delete field" onclick="submitDeleteField('${esc(tableName)}','${esc(field.name)}')">
+               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+             </button>`
+        }
+      </div>`;
+  }
+
+  // ── Create table ───────────────────────────────────────────────────────────
+  function showTableCreateForm() {
+    const f = document.getElementById('table-create-form');
+    f.classList.add('visible');
+    setTimeout(() => document.getElementById('new-table-name').focus(), 50);
+  }
+
+  function hideTableCreateForm() {
+    document.getElementById('table-create-form').classList.remove('visible');
+    document.getElementById('new-table-name').value = '';
+    document.getElementById('table-create-error').textContent = '';
+  }
+
+  async function submitCreateTable() {
+    const name = document.getElementById('new-table-name').value.trim();
+    if (!name || !activeDbName) return;
+    const res  = await fetch(`/api/databases/${encodeURIComponent(activeDbName)}/tables`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('table-create-error').textContent = data.error;
+      return;
+    }
+    hideTableCreateForm();
+    const updated = await fetch('/api/databases/' + encodeURIComponent(activeDbName)).then(r => r.json());
+    renderDbDetail(updated);
+  }
+
+  // ── Add field ──────────────────────────────────────────────────────────────
+  function toggleAddFieldForm(tableName) {
+    const el = document.getElementById('aff-' + tableName);
+    if (el.classList.contains('visible')) {
+      closeAddFieldForm(tableName);
+    } else {
+      el.classList.add('visible');
+      setTimeout(() => document.getElementById('fn-' + tableName).focus(), 50);
+    }
+  }
+
+  function closeAddFieldForm(tableName) {
+    const el = document.getElementById('aff-' + tableName);
+    el.classList.remove('visible');
+    document.getElementById('fn-' + tableName).value           = '';
+    document.getElementById('aff-err-' + tableName).textContent = '';
+  }
+
+  async function submitAddField(tableName) {
+    const name = document.getElementById('fn-' + tableName).value.trim();
+    const type = document.getElementById('ft-' + tableName).value;
+    if (!name || !activeDbName) return;
+
+    const res  = await fetch(
+      `/api/databases/${encodeURIComponent(activeDbName)}/tables/${encodeURIComponent(tableName)}/fields`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, type }) }
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('aff-err-' + tableName).textContent = data.error;
+      return;
+    }
+    const updated = await fetch('/api/databases/' + encodeURIComponent(activeDbName)).then(r => r.json());
+    renderDbDetail(updated);
+  }
+
+  // ── Delete field ───────────────────────────────────────────────────────────
+  async function submitDeleteField(tableName, fieldName) {
+    const res = await fetch(
+      `/api/databases/${encodeURIComponent(activeDbName)}/tables/${encodeURIComponent(tableName)}/fields/${encodeURIComponent(fieldName)}`,
+      { method: 'DELETE' }
+    );
+    if (!res.ok) return;
+    const updated = await fetch('/api/databases/' + encodeURIComponent(activeDbName)).then(r => r.json());
+    renderDbDetail(updated);
+  }
+
+  // ── Util ───────────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  loadDatabases();
+  </script>
+</body>
+</html>

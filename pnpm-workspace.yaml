@@ -1,0 +1,10 @@
+packages:
+  - 'packages/*'
+  - 'develop/frontend'
+  - 'serve/frontend'
+
+allowBuilds:
+  esbuild: true
+
+onlyBuiltDependencies:
+  - esbuild

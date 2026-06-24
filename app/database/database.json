@@ -1,0 +1,45 @@
+{
+  "databases": [
+    {
+      "name": "test",
+      "file": "test.json",
+      "created_at": 1782295478,
+      "tables": {
+        "users": {
+          "created_at": 1782295770,
+          "fields": [
+            {
+              "name": "id",
+              "type": "integer",
+              "primary_key": true,
+              "auto_increment": true,
+              "system": true
+            },
+            {
+              "name": "created_at",
+              "type": "integer",
+              "system": true
+            },
+            {
+              "name": "updated_at",
+              "type": "integer",
+              "system": true
+            },
+            {
+              "name": "name",
+              "type": "text"
+            },
+            {
+              "name": "phone",
+              "type": "text"
+            },
+            {
+              "name": "email",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

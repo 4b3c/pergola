@@ -1,0 +1,50 @@
+services:
+
+  # ── Pergola Develop (app builder) ────────────────────────────────────────────
+  develop-api:
+    build:
+      context: .
+      dockerfile: develop/Dockerfile
+    expose:
+      - "5000"
+    volumes:
+      - ${HOME}:${HOME}          # host filesystem — file picker + shared ~/.pergola/projects.json
+    environment:
+      - HOME=${HOME}
+      - PERGOLA_PROJECTS_FILE=${HOME}/.pergola/projects.json
+    restart: unless-stopped
+
+  develop-nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${DEVELOP_PORT:-8080}:80"
+    volumes:
+      - ./nginx/develop.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - develop-api
+    restart: unless-stopped
+
+  # ── Pergola Serve (app runtime) ──────────────────────────────────────────────
+  serve-api:
+    build:
+      context: .
+      dockerfile: serve/Dockerfile
+    expose:
+      - "5001"
+    volumes:
+      - ${HOME}:${HOME}          # host filesystem — file picker + shared ~/.pergola/projects.json
+    environment:
+      - HOME=${HOME}
+      - PERGOLA_PROJECTS_FILE=${HOME}/.pergola/projects.json
+    restart: unless-stopped
+
+  serve-nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${SERVE_PORT:-8081}:80"
+    volumes:
+      - ./nginx/serve.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - serve-api
+    restart: unless-stopped
+
